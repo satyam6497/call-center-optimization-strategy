@@ -1,1 +1,2 @@
 # call-center-optimization-strategy
+This project focuses on analyzing call center data to optimize key metrics such as Average Handle Time (AHT) and Average Speed to Answer (AST) for United Airlines. The repository includes SQL queries to identify drivers of inefficiencies, recommend process improvements, and predict primary call reasons. Key deliverables include SQL scripts, data-driven insights, and recommendations to enhance operational efficiency and customer satisfaction.

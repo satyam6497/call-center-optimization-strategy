@@ -1,0 +1,86 @@
+--1. Calculate AHT (Average Handle Time):
+SELECT 
+    AVG(TIMESTAMPDIFF(SECOND, agent_assigned_datetime, call_end_datetime)) AS AHT
+FROM 
+    calls;
+
+--2. Calculate AST (Average Speed to Answer):
+SELECT 
+    AVG(TIMESTAMPDIFF(SECOND, call_start_datetime, agent_assigned_datetime)) AS AST
+FROM 
+    calls;
+
+--3. Find Drivers of Long AHT:
+SELECT 
+    primary_call_reason, 
+    AVG(TIMESTAMPDIFF(SECOND, agent_assigned_datetime, call_end_datetime)) AS avg_handle_time
+FROM 
+    calls
+GROUP BY 
+    primary_call_reason
+ORDER BY 
+    avg_handle_time DESC;
+
+
+--4. Quantify AHT Difference Between Most and Least Frequent Call Reasons:
+WITH reason_counts AS (
+    SELECT primary_call_reason, COUNT(*) AS reason_count
+    FROM calls
+    GROUP BY primary_call_reason
+),
+most_frequent AS (
+    SELECT primary_call_reason
+    FROM reason_counts
+    ORDER BY reason_count DESC
+    LIMIT 1
+),
+least_frequent AS (
+    SELECT primary_call_reason
+    FROM reason_counts
+    ORDER BY reason_count ASC
+    LIMIT 1
+),
+aht_difference AS (
+    SELECT AVG(TIMESTAMPDIFF(SECOND, agent_assigned_datetime, call_end_datetime)) AS avg_handle_time
+    FROM calls
+    WHERE primary_call_reason = (SELECT primary_call_reason FROM most_frequent)
+    UNION ALL
+    SELECT AVG(TIMESTAMPDIFF(SECOND, agent_assigned_datetime, call_end_datetime)) AS avg_handle_time
+    FROM calls
+    WHERE primary_call_reason = (SELECT primary_call_reason FROM least_frequent)
+)
+SELECT 
+    (MAX(avg_handle_time) - MIN(avg_handle_time)) / MIN(avg_handle_time) * 100 AS percentage_difference
+FROM 
+    aht_difference;
+
+--5. Improve IVR Options by Identifying Self-Solvable Issues:
+SELECT 
+    primary_call_reason, 
+    COUNT(*) AS call_count,
+    AVG(TIMESTAMPDIFF(SECOND, agent_assigned_datetime, call_end_datetime)) AS avg_handle_time
+FROM 
+    calls
+WHERE 
+    primary_call_reason IN ('Simple Request 1', 'Simple Request 2')  -- Specify the call reasons that can be self-solvable
+GROUP BY 
+    primary_call_reason;
+
+
+--6. Analyze Call Reasons for Optimizing Resource Allocation:
+SELECT 
+    primary_call_reason, 
+    COUNT(*) AS call_count
+FROM 
+    calls
+GROUP BY 
+    primary_call_reason
+ORDER BY 
+    call_count DESC;
+
+
+
+
+
+
+

@@ -1,0 +1,39 @@
+--Use SQL to create the required tables (calls, customers, reason, sentiment_statistics).
+
+CREATE TABLE calls (
+  call_id INT PRIMARY KEY,
+  customer_id INT,
+  agent_id INT,
+  call_start_datetime DATETIME,
+  agent_assigned_datetime DATETIME,
+  call_end_datetime DATETIME,
+  call_transcript TEXT,
+  primary_call_reason VARCHAR(255)
+);
+
+CREATE TABLE customers (
+  customer_id INT PRIMARY KEY,
+  customer_name VARCHAR(255),
+  mp_status INT
+);
+
+CREATE TABLE reason (
+  reason_id INT PRIMARY KEY,
+  reason_description VARCHAR(255)
+);
+
+CREATE TABLE sentiment_statistics (
+  call_id INT,
+  agent_tone VARCHAR(255),
+  customer_tone VARCHAR(255),
+  average_sentiment DECIMAL(3, 2),
+  silence_percent_average DECIMAL(4, 2)
+);
+
+-- Load data
+LOAD DATA INFILE '/path/to/calls.csv'
+INTO TABLE calls
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;

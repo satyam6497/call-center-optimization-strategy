@@ -1,0 +1,2 @@
+CREATE DATABASE call_center_db;
+USE call_center_db;
